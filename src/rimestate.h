@@ -44,6 +44,9 @@ public:
     void commitInput(InputContext *ic);
     void commitComposing(InputContext *ic);
     void commitPreedit(InputContext *ic);
+    std::string getInput();
+    bool replaceInput(InputContext *inputContext, int start, int length,
+                      const std::string &replacement, int caretPos);
     std::string subMode();
     std::string subModeLabel();
     void toggleLatinMode();

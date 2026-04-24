@@ -8,6 +8,7 @@
 
 #include "rimesession.h"
 #include "rimestate.h"
+#include "rime_public.h"
 #include <cstdint>
 #include <fcitx-config/configuration.h>
 #include <fcitx-config/enum.h>
@@ -153,11 +154,16 @@ public:
     void rimeStart(bool fullcheck);
 
     RimeState *state(InputContext *ic);
+    std::string getInput(InputContext *ic);
+    bool replaceInput(InputContext *ic, int start, int length,
+                      const std::string &replacement, int caretPos);
     RimeSessionPool &sessionPool() { return sessionPool_; }
 
 #ifndef FCITX_RIME_NO_DBUS
     FCITX_ADDON_DEPENDENCY_LOADER(dbus, instance_->addonManager());
 #endif
+    FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, getInput);
+    FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, replaceInput);
 
     void allowNotification(std::string type = "");
     const auto &schemas() const { return schemas_; }

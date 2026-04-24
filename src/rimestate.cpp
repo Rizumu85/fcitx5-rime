@@ -477,6 +477,48 @@ void RimeState::commitPreedit(InputContext *ic) {
     }
 }
 
+std::string RimeState::getInput() {
+    auto *api = engine_->api();
+    auto session = this->session();
+    if (!session || !api || !api->get_input) {
+        return {};
+    }
+    const char *input = api->get_input(session);
+    return input ? input : "";
+}
+
+bool RimeState::replaceInput(InputContext *inputContext, int start, int length,
+                             const std::string &replacement, int caretPos) {
+    auto *api = engine_->api();
+    auto session = this->session();
+    if (!inputContext || !session || !api || !api->get_input || !api->set_input ||
+        !api->set_caret_pos) {
+        return false;
+    }
+
+    std::string input = getInput();
+    const int inputLength = static_cast<int>(input.size());
+    const int clampedStart = std::clamp(start, 0, inputLength);
+    const int clampedLength = std::clamp(length, 0, inputLength - clampedStart);
+
+    if (clampedStart != start || clampedLength != length) {
+        return false;
+    }
+
+    input.replace(clampedStart, clampedLength, replacement);
+    if (!api->set_input(session, input.c_str())) {
+        return false;
+    }
+
+    const int desiredCaret =
+        caretPos >= 0 ? caretPos
+                      : clampedStart + static_cast<int>(replacement.size());
+    api->set_caret_pos(session, std::clamp(desiredCaret, 0,
+                                           static_cast<int>(input.size())));
+    updateUI(inputContext, false);
+    return true;
+}
+
 void RimeState::snapshot() {
     if (!session(false)) {
         return;

@@ -572,6 +572,29 @@ RimeState *RimeEngine::state(InputContext *ic) {
     return ic->propertyFor(&factory_);
 }
 
+std::string RimeEngine::getInput(InputContext *ic) {
+    if (!ic) {
+        return {};
+    }
+    auto *rimeState = state(ic);
+    if (!rimeState) {
+        return {};
+    }
+    return rimeState->getInput();
+}
+
+bool RimeEngine::replaceInput(InputContext *ic, int start, int length,
+                              const std::string &replacement, int caretPos) {
+    if (!ic) {
+        return false;
+    }
+    auto *rimeState = state(ic);
+    if (!rimeState) {
+        return false;
+    }
+    return rimeState->replaceInput(ic, start, length, replacement, caretPos);
+}
+
 std::string RimeEngine::subMode(const InputMethodEntry & /*entry*/,
                                 InputContext &ic) {
     if (auto *rimeState = state(&ic)) {
