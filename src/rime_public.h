@@ -33,6 +33,10 @@ FCITX_ADDON_DECLARE_FUNCTION(
          const std::string &replacement, int caretPos));
 
 FCITX_ADDON_DECLARE_FUNCTION(
+    RimeEngine, setOption,
+    bool(fcitx::InputContext *ic, const std::string &name, bool enabled));
+
+FCITX_ADDON_DECLARE_FUNCTION(
     RimeEngine, setAvailabilityCallback,
     void(fcitx::RimeAvailabilityCallback callback));
 

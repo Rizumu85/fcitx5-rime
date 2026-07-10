@@ -617,6 +617,24 @@ bool RimeEngine::replaceInput(InputContext *ic, int start, int length,
     return rimeState->replaceInput(ic, start, length, replacement, caretPos);
 }
 
+bool RimeEngine::setOption(InputContext *ic, const std::string &name,
+                           bool enabled) {
+    if (!ic || availability_ != RimeAvailability::Ready ||
+        api_->is_maintenance_mode() || instance_->inputMethod(ic) != "rime") {
+        return false;
+    }
+    auto *rimeState = state(ic);
+    if (!rimeState) {
+        return false;
+    }
+    const auto session = rimeState->session();
+    if (!session) {
+        return false;
+    }
+    api_->set_option(session, name.c_str(), enabled);
+    return true;
+}
+
 std::string RimeEngine::subMode(const InputMethodEntry & /*entry*/,
                                 InputContext &ic) {
     if (auto *rimeState = state(&ic)) {
