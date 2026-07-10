@@ -245,6 +245,7 @@ RimeEngine::~RimeEngine() {
 
 void RimeEngine::rimeStart(bool fullcheck) {
     RIME_DEBUG() << "Rime Start (fullcheck: " << fullcheck << ")";
+    updateAvailability(RimeAvailability::Deploying);
 
     auto userDir =
         StandardPaths::global().userDirectory(StandardPathsType::PkgData) /
@@ -297,8 +298,26 @@ void RimeEngine::rimeStart(bool fullcheck) {
 
     if (!api_->is_maintenance_mode()) {
         updateAppOptions();
+        updateAvailability(RimeAvailability::Ready);
     } else {
         needRefreshAppOption_ = true;
+    }
+}
+
+void RimeEngine::setAvailabilityCallback(RimeAvailabilityCallback callback) {
+    availabilityCallback_ = std::move(callback);
+    if (availabilityCallback_) {
+        availabilityCallback_(availability_);
+    }
+}
+
+void RimeEngine::updateAvailability(RimeAvailability availability) {
+    if (availability_ == availability) {
+        return;
+    }
+    availability_ = availability;
+    if (availabilityCallback_) {
+        availabilityCallback_(availability_);
     }
 }
 
@@ -523,6 +542,7 @@ void RimeEngine::notify(RimeSessionId session, const std::string &messageType,
         tipId = "fcitx-rime-deploy";
         icon = "fcitx_rime_deploy";
         if (messageValue == "start") {
+            updateAvailability(RimeAvailability::Deploying);
             message = _("Rime is under maintenance. It may take a few "
                         "seconds. Please wait until it is finished...");
         } else if (messageValue == "success") {
@@ -536,9 +556,11 @@ void RimeEngine::notify(RimeSessionId session, const std::string &messageType,
             }
             updateSchemaMenu();
             refreshStatusArea(0);
+            updateAvailability(RimeAvailability::Ready);
             blockMessage = true;
         } else if (messageValue == "failure") {
             needRefreshAppOption_ = false;
+            updateAvailability(RimeAvailability::Failed);
             message = _("Rime has encountered an error. "
                         "See log for details.");
             blockMessage = true;

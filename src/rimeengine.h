@@ -157,6 +157,7 @@ public:
     std::string getInput(InputContext *ic);
     bool replaceInput(InputContext *ic, int start, int length,
                       const std::string &replacement, int caretPos);
+    void setAvailabilityCallback(RimeAvailabilityCallback callback);
     RimeSessionPool &sessionPool() { return sessionPool_; }
 
 #ifndef FCITX_RIME_NO_DBUS
@@ -164,6 +165,7 @@ public:
 #endif
     FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, getInput);
     FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, replaceInput);
+    FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, setAvailabilityCallback);
 
     void allowNotification(std::string type = "");
     const auto &schemas() const { return schemas_; }
@@ -184,6 +186,7 @@ private:
                 const std::string &value);
     void releaseAllSession(bool snapshot = false);
     void updateAppOptions();
+    void updateAvailability(RimeAvailability availability);
     void refreshStatusArea(InputContext &ic);
     void refreshStatusArea(RimeSessionId session);
     void updateStatusArea(RimeSessionId session);
@@ -202,6 +205,8 @@ private:
     std::string allowNotificationType_;
     FactoryFor<RimeState> factory_;
     bool needRefreshAppOption_ = false;
+    RimeAvailability availability_ = RimeAvailability::Deploying;
+    RimeAvailabilityCallback availabilityCallback_;
 
     std::unique_ptr<Action> imAction_;
     SimpleAction separatorAction_;
