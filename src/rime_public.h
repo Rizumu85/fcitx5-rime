@@ -37,6 +37,10 @@ FCITX_ADDON_DECLARE_FUNCTION(
     bool(fcitx::InputContext *ic, const std::string &name, bool enabled));
 
 FCITX_ADDON_DECLARE_FUNCTION(
+    RimeEngine, setSchema,
+    bool(fcitx::InputContext *ic, const std::string &schema));
+
+FCITX_ADDON_DECLARE_FUNCTION(
     RimeEngine, setAvailabilityCallback,
     void(fcitx::RimeAvailabilityCallback callback));
 

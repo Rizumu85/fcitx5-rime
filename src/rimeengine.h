@@ -158,6 +158,7 @@ public:
     bool replaceInput(InputContext *ic, int start, int length,
                       const std::string &replacement, int caretPos);
     bool setOption(InputContext *ic, const std::string &name, bool enabled);
+    bool setSchema(InputContext *ic, const std::string &schema);
     void setAvailabilityCallback(RimeAvailabilityCallback callback);
     RimeSessionPool &sessionPool() { return sessionPool_; }
 
@@ -167,6 +168,7 @@ public:
     FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, getInput);
     FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, replaceInput);
     FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, setOption);
+    FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, setSchema);
     FCITX_ADDON_EXPORT_FUNCTION(RimeEngine, setAvailabilityCallback);
 
     void allowNotification(std::string type = "");

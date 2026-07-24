@@ -635,6 +635,20 @@ bool RimeEngine::setOption(InputContext *ic, const std::string &name,
     return true;
 }
 
+bool RimeEngine::setSchema(InputContext *ic, const std::string &schema) {
+    if (!ic || availability_ != RimeAvailability::Ready ||
+        api_->is_maintenance_mode() || instance_->inputMethod(ic) != "rime" ||
+        !schemas_.count(schema)) {
+        return false;
+    }
+    auto *rimeState = state(ic);
+    if (!rimeState) {
+        return false;
+    }
+    rimeState->selectSchema(schema);
+    return rimeState->currentSchema() == schema;
+}
+
 std::string RimeEngine::subMode(const InputMethodEntry & /*entry*/,
                                 InputContext &ic) {
     if (auto *rimeState = state(&ic)) {
