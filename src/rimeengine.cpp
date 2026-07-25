@@ -235,6 +235,9 @@ RimeEngine::RimeEngine(Instance *instance)
 }
 
 RimeEngine::~RimeEngine() {
+    // Android can restart the addon inside one host process. Close sessions before librime
+    // finalization so the next instance never inherits a same-process LevelDB lock.
+    releaseAllSession();
     factory_.unregister();
     try {
         api_->finalize();
