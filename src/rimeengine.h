@@ -209,6 +209,7 @@ private:
     std::string allowNotificationType_;
     FactoryFor<RimeState> factory_;
     bool needRefreshAppOption_ = false;
+    bool startupMaintenance_ = false;
     RimeAvailability availability_ = RimeAvailability::Deploying;
     RimeAvailabilityCallback availabilityCallback_;
 

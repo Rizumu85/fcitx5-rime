@@ -248,7 +248,12 @@ RimeEngine::~RimeEngine() {
 
 void RimeEngine::rimeStart(bool fullcheck) {
     RIME_DEBUG() << "Rime Start (fullcheck: " << fullcheck << ")";
-    updateAvailability(RimeAvailability::Deploying);
+    // Librime reports its ordinary startup check through the same deploy notification as an
+    // explicit full deployment. Keep that check classified as Starting so reopening the engine
+    // does not look like a dictionary reinstall.
+    startupMaintenance_ = !fullcheck;
+    updateAvailability(fullcheck ? RimeAvailability::Deploying
+                                 : RimeAvailability::Starting);
 
     auto userDir =
         StandardPaths::global().userDirectory(StandardPathsType::PkgData) /
@@ -300,6 +305,7 @@ void RimeEngine::rimeStart(bool fullcheck) {
     api_->start_maintenance(fullcheck);
 
     if (!api_->is_maintenance_mode()) {
+        startupMaintenance_ = false;
         updateAppOptions();
         updateAvailability(RimeAvailability::Ready);
     } else {
@@ -545,10 +551,13 @@ void RimeEngine::notify(RimeSessionId session, const std::string &messageType,
         tipId = "fcitx-rime-deploy";
         icon = "fcitx_rime_deploy";
         if (messageValue == "start") {
-            updateAvailability(RimeAvailability::Deploying);
+            if (!startupMaintenance_) {
+                updateAvailability(RimeAvailability::Deploying);
+            }
             message = _("Rime is under maintenance. It may take a few "
                         "seconds. Please wait until it is finished...");
         } else if (messageValue == "success") {
+            startupMaintenance_ = false;
             message = _("Rime is ready.");
             if (!api_->is_maintenance_mode()) {
                 if (needRefreshAppOption_) {
@@ -562,6 +571,7 @@ void RimeEngine::notify(RimeSessionId session, const std::string &messageType,
             updateAvailability(RimeAvailability::Ready);
             blockMessage = true;
         } else if (messageValue == "failure") {
+            startupMaintenance_ = false;
             needRefreshAppOption_ = false;
             updateAvailability(RimeAvailability::Failed);
             message = _("Rime has encountered an error. "

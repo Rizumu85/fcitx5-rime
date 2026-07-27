@@ -18,6 +18,7 @@ enum class RimeAvailability {
     Deploying = 1,
     Ready = 2,
     Failed = 3,
+    Starting = 4,
 };
 
 using RimeAvailabilityCallback = std::function<void(RimeAvailability)>;
